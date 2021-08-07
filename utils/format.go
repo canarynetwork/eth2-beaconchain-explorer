@@ -315,9 +315,8 @@ func FormatEth1Address(addr []byte) template.HTML {
 	eth1Addr := eth1common.BytesToAddress(addr)
 
 	if !Config.Chain.Mainnet {
-		return template.HTML(fmt.Sprintf("<a href=\"https://goerli.etherscan.io/address/0x%x\" class=\"text-monospace\">%s…</a>", addr, eth1Addr.Hex()[:8]))
+		return template.HTML(fmt.Sprintf("<a href=\"%s/address/0x%x\" class=\"text-monospace\">%s…</a>", Config.Frontend.Eth1ExplorerBase, addr, eth1Addr.Hex()[:8]))
 	}
-
 	return template.HTML(fmt.Sprintf("<a href=\"https://etherchain.org/account/0x%x\" class=\"text-monospace\">%s…</a>", addr, eth1Addr.Hex()[:8]))
 
 }
@@ -325,15 +324,22 @@ func FormatEth1Address(addr []byte) template.HTML {
 // FormatEth1Block will return the eth1-block formated as html
 func FormatEth1Block(block uint64) template.HTML {
 	if !Config.Chain.Mainnet {
-		return template.HTML(fmt.Sprintf("<a href=\"https://goerli.etherscan.io/block/%[1]d\">%[1]d</a>", block))
+		return template.HTML(fmt.Sprintf("<a href=\"%[1]s/block/%[2]d\">%[2]d</a>", Config.Frontend.Eth1ExplorerBase, block))
 	}
 	return template.HTML(fmt.Sprintf("<a href=\"https://etherchain.org/block/%[1]d\">%[1]d</a>", block))
+}
+
+func FormatEth1BlockHash(hash []byte) template.HTML {
+	if !Config.Chain.Mainnet {
+		return template.HTML(fmt.Sprintf("<a href=\"%[1]s/block/0x%[2]x\">0x%[2]x</a>", Config.Frontend.Eth1ExplorerBase, hash))
+	}
+	return template.HTML(fmt.Sprintf("<a href=\"https://etherchain.org/block/%[1]x\">%[1]x</a>", hash))
 }
 
 // FormatEth1TxHash will return the eth1-tx-hash formated as html
 func FormatEth1TxHash(hash []byte) template.HTML {
 	if !Config.Chain.Mainnet {
-		return template.HTML(fmt.Sprintf("<a href=\"https://goerli.etherscan.io/tx/0x%x\">%v</a>", hash, FormatHash(hash)))
+		return template.HTML(fmt.Sprintf("<a href=\"%s/tx/0x%x\">%v</a>", Config.Frontend.Eth1ExplorerBase, hash, FormatHash(hash)))
 	}
 	return template.HTML(fmt.Sprintf("<a href=\"https://etherchain.org/tx/0x%x\">%v</a>", hash, FormatHash(hash)))
 }
