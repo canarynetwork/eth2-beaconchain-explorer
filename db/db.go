@@ -964,7 +964,7 @@ func saveValidators(epoch uint64, validators []*types.Validator, tx *sql.Tx) err
 				WHEN exitepoch < 9223372036854775807 then 'exiting_online'
 				WHEN activationepoch < $1 and (lastattestationslot < $2 OR lastattestationslot is null) then 'active_offline' 
 				ELSE 'active_online'
-			END`, latestBlock/32, thresholdSlot)
+			END`, latestBlock/16, thresholdSlot)
 	if err != nil {
 		return err
 	}
@@ -972,7 +972,7 @@ func saveValidators(epoch uint64, validators []*types.Validator, tx *sql.Tx) err
 	logger.Infof("saving validator status completed, took %v", time.Since(s))
 
 	s = time.Now()
-	_, err = tx.Exec("update validators set balanceactivation = (select balance from validator_balances_p where validator_balances_p.week = validators.activationepoch / 1575 and validator_balances_p.epoch = validators.activationepoch and validator_balances_p.validatorindex = validators.validatorindex) WHERE balanceactivation IS NULL;")
+	_, err = tx.Exec("update validators set balanceactivation = (select balance from validator_balances_p where validator_balances_p.week = validators.activationepoch / 5400 and validator_balances_p.epoch = validators.activationepoch and validator_balances_p.validatorindex = validators.validatorindex) WHERE balanceactivation IS NULL;")
 	if err != nil {
 		return err
 	}
@@ -1017,7 +1017,7 @@ func saveValidatorAttestationAssignments(epoch uint64, assignments map[string]ui
 	for key, validator := range assignments {
 		keySplit := strings.Split(key, "-")
 		//args = append(args, []interface{}{epoch, validator, keySplit[0], keySplit[1], 0})
-		argsWeek = append(argsWeek, []interface{}{epoch, validator, keySplit[0], keySplit[1], 0, epoch / 1575})
+		argsWeek = append(argsWeek, []interface{}{epoch, validator, keySplit[0], keySplit[1], 0, epoch / 5400})
 	}
 
 	batchSize := 10000
@@ -1122,7 +1122,7 @@ func saveValidatorBalances(epoch uint64, validators []*types.Validator, tx *sql.
 			valueArgs = append(valueArgs, v.Index)
 			valueArgs = append(valueArgs, v.Balance)
 			valueArgs = append(valueArgs, v.EffectiveBalance)
-			valueArgs = append(valueArgs, epoch/1575)
+			valueArgs = append(valueArgs, epoch/5400)
 		}
 		stmt := fmt.Sprintf(`
 		INSERT INTO validator_balances_p (epoch, validatorindex, balance, effectivebalance, week)
@@ -1376,7 +1376,7 @@ func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
 
 				for _, validator := range a.Attesters {
 					//attestationAssignmentsArgs = append(attestationAssignmentsArgs, []interface{}{a.Data.Slot / utils.Config.Chain.SlotsPerEpoch, validator, a.Data.Slot, a.Data.CommitteeIndex, 1, b.Slot})
-					attestationAssignmentsArgsWeek = append(attestationAssignmentsArgsWeek, []interface{}{a.Data.Slot / utils.Config.Chain.SlotsPerEpoch, validator, a.Data.Slot, a.Data.CommitteeIndex, 1, b.Slot, a.Data.Slot / utils.Config.Chain.SlotsPerEpoch / 1575})
+					attestationAssignmentsArgsWeek = append(attestationAssignmentsArgsWeek, []interface{}{a.Data.Slot / utils.Config.Chain.SlotsPerEpoch, validator, a.Data.Slot, a.Data.CommitteeIndex, 1, b.Slot, a.Data.Slot / utils.Config.Chain.SlotsPerEpoch / 5400})
 					attestingValidators = append(attestingValidators, strconv.FormatUint(validator, 10))
 				}
 

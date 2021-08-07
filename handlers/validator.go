@@ -398,7 +398,7 @@ func Validator(w http.ResponseWriter, r *http.Request) {
 			MissedAttestations   uint64 `db:"missed_attestations"`
 			OrphanedAttestations uint64 `db:"orphaned_attestations"`
 		}{}
-		err = db.DB.Get(&attestationStatsNotInStats, "select coalesce(sum(case when status = 0 then 1 else 0 end), 0) as missed_attestations, coalesce(sum(case when status = 3 then 1 else 0 end), 0) as orphaned_attestations from attestation_assignments_p where week >= $1/7 and epoch >= ($1+1)*225 and epoch < $2 and validatorindex = $3", lastStatsDay, services.LatestEpoch(), index)
+		err = db.DB.Get(&attestationStatsNotInStats, "select coalesce(sum(case when status = 0 then 1 else 0 end), 0) as missed_attestations, coalesce(sum(case when status = 3 then 1 else 0 end), 0) as orphaned_attestations from attestation_assignments_p where week >= $1/7 and epoch >= ($1+1)*771 and epoch < $2 and validatorindex = $3", lastStatsDay, services.LatestEpoch(), index)
 		if err != nil {
 			logger.Errorf("error retrieving validator attestationStatsAfterLastStatsDay: %v", err)
 			http.Error(w, "Internal server error", 503)
@@ -523,10 +523,11 @@ func Validator(w http.ResponseWriter, r *http.Request) {
 				WHERE slot > aa.attesterslot AND blocks.status = '1'
 			), 0)
 		), 0)
-		FROM attestation_assignments_p aa
-		INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
-		WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND aa.validatorindex = $2 AND aa.inclusionslot > 0
-		`, int64(validatorPageData.Epoch)-100, index)
+	), 0)
+	FROM attestation_assignments_p aa
+	INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
+	WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND aa.validatorindex = $2 AND aa.inclusionslot > 0
+	`, int64(validatorPageData.Epoch)-100, index)
 	if err != nil {
 		logger.Errorf("error retrieving AverageAttestationInclusionDistance: %v", err)
 		http.Error(w, "Internal server error", 503)
@@ -697,7 +698,7 @@ func ValidatorAttestationInclusionEffectiveness(w http.ResponseWriter, r *http.R
 	), 0)
 	FROM attestation_assignments_p aa
 	INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
-	WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND aa.validatorindex = $2 AND aa.inclusionslot > 0
+	WHERE aa.week >= $1 / 5400 AND aa.epoch > $1 AND aa.validatorindex = $2 AND aa.inclusionslot > 0
 	`, int64(services.LatestEpoch())-100, index)
 	if err != nil {
 		logger.Errorf("error retrieving AverageAttestationInclusionDistance: %v", err)
@@ -1298,8 +1299,8 @@ func ValidatorHistory(w http.ResponseWriter, r *http.Request) {
 				vblocks.slot as proposal_slot
 			FROM validator_balances_p vbalance
 			LEFT JOIN attestation_assignments_p assign ON vbalance.validatorindex = assign.validatorindex AND vbalance.epoch = assign.epoch AND vbalance.week = assign.week
-			LEFT JOIN blocks vblocks ON vbalance.validatorindex = vblocks.proposer AND vbalance.epoch = vblocks.epoch AND vbalance.week = vblocks.epoch / 1575
-			WHERE vbalance.validatorindex = $1 AND vbalance.epoch >= $2 AND vbalance.epoch <= $3 AND vbalance.week >= $2 / 1575 AND vbalance.week <= $3 / 1575
+			LEFT JOIN blocks vblocks ON vbalance.validatorindex = vblocks.proposer AND vbalance.epoch = vblocks.epoch AND vbalance.week = vblocks.epoch / 5400
+			WHERE vbalance.validatorindex = $1 AND vbalance.epoch >= $2 AND vbalance.epoch <= $3 AND vbalance.week >= $2 / 5400 AND vbalance.week <= $3 / 5400
 			ORDER BY epoch DESC
 			LIMIT 10
 			`, index, lookBack, currentEpoch-start)

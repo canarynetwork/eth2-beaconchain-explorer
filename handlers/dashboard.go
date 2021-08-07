@@ -223,8 +223,8 @@ func DashboardDataMissedAttestations(w http.ResponseWriter, r *http.Request) {
 			validatorindex = ANY($1) 
 			AND epoch <= $2 
 			AND epoch >= $3 
-			AND week <= $2 / 1575
-			AND week >= $3 / 1575
+			AND week <= $2 / 5400
+			AND week >= $3 / 5400
 			AND status = 0`, filter, maxEpoch, minEpoch)
 	if err != nil {
 		logger.WithError(err).WithField("route", r.URL.String()).Error("error retrieving daily proposed blocks blocks count")
@@ -447,7 +447,7 @@ func DashboardDataEffectiveness(w http.ResponseWriter, r *http.Request) {
 		), 0)
 		FROM attestation_assignments_p aa
 		INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
-		WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND aa.validatorindex = index AND aa.inclusionslot > 0
+		WHERE aa.week >= $1 / 5400 AND aa.epoch > $1 AND aa.validatorindex = index AND aa.inclusionslot > 0
 		) as incd
 	FROM unnest($2::int[]) AS index;
 	`, int64(services.LatestEpoch())-100, activeValidators)

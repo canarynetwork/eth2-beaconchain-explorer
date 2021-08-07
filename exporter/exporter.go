@@ -453,7 +453,7 @@ func ExportEpoch(epoch uint64, client rpc.Client) error {
 	// Check if the partition for the validator_balances and attestation_assignments and sync_assignments table for this epoch exists
 	var one int
 	logger.Printf("checking partition status for epoch %v", epoch)
-	week := epoch / 1575
+	week := epoch / 5400
 	err := db.DB.Get(&one, fmt.Sprintf("SELECT 1 FROM information_schema.tables WHERE table_name = 'attestation_assignments_%v'", week))
 	if err != nil {
 		logger.Infof("creating partition attestation_assignments_%v", week)
@@ -559,9 +559,9 @@ func updateValidatorPerformance() error {
 		return fmt.Errorf("error retrieving latest epoch: %w", err)
 	}
 
-	lastDayEpoch := currentEpoch - 225
-	lastWeekEpoch := currentEpoch - 225*7
-	lastMonthEpoch := currentEpoch - 225*31
+	lastDayEpoch := currentEpoch - 771
+	lastWeekEpoch := currentEpoch - 5400
+	lastMonthEpoch := currentEpoch - 23914
 
 	if lastDayEpoch < 0 {
 		lastDayEpoch = 0
@@ -595,7 +595,7 @@ func updateValidatorPerformance() error {
 		Amount    int64
 	}{}
 
-	err = tx.Select(&deposits, `SELECT block_slot / 32 AS epoch, amount, publickey FROM blocks_deposits`)
+	err = tx.Select(&deposits, `SELECT block_slot / 16 AS epoch, amount, publickey FROM blocks_deposits`)
 	if err != nil {
 		return fmt.Errorf("error retrieving validator deposits data: %w", err)
 	}
