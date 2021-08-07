@@ -30,7 +30,7 @@ func WriteStatisticsForDay(day uint64) error {
                              max_effective_balance, start_balance, start_effective_balance, end_balance, end_effective_balance)
     (select validatorindex, $3, min(balance), max(balance), min(effectivebalance), max(effectivebalance), max(case when epoch = $1 then balance else 0 end), max(case when epoch = $1 then effectivebalance else 0 end), max(case when epoch = $2 then balance else 0 end), max(case when epoch = $2 then effectivebalance else 0 end)
      FROM validator_balances_p
-     where week >= $1 / 1575 AND week <= $2 / 1575
+     where week >= $1 / 5400 AND week <= $2 / 5400
        and epoch >= $1 and epoch <= $2 group by validatorindex) on conflict (validatorindex, day) do
 update
     set min_balance = excluded.min_balance, max_balance = excluded.max_balance, min_effective_balance = excluded.min_effective_balance, max_effective_balance = excluded.max_effective_balance, start_balance = excluded.start_balance, start_effective_balance = excluded.start_effective_balance, end_balance = excluded.end_balance, end_effective_balance = excluded.end_effective_balance;
@@ -44,7 +44,7 @@ update
 	logger.Infof("exporting missed_attestations and orphaned_attestations statistics")
 	_, err = tx.Exec(`insert into validator_stats (validatorindex, day, missed_attestations, orphaned_attestations) (select validatorindex, $3, sum(case when status = 0 then 1 else 0 end), sum(case when status = 3 then 1 else 0 end)
                                                                         from attestation_assignments_p
-                                                                        where week >= $1 / 1575 AND week <= $2 / 1575
+                                                                        where week >= $1 / 5400 AND week <= $2 / 5400
                                                                           and epoch >= $1 and epoch <= $2
                                                                         group by validatorindex) on conflict (validatorindex, day) do
 update set missed_attestations = excluded.missed_attestations, orphaned_attestations = excluded.orphaned_attestations;`, firstEpoch, lastEpoch, day)

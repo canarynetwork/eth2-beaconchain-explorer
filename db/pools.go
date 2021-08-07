@@ -149,11 +149,11 @@ func getPoolIncome(poolAddress string, poolName string) {
 func getValidatorEarnings(validators []uint64, poolName string) {
 	validatorsPQArray := pq.Array(validators)
 	latestEpoch := int64(latestEpoch)
-	lastDayEpoch := latestEpoch - 225
-	lastWeekEpoch := latestEpoch - 225*7
-	lastMonthEpoch := latestEpoch - 225*31
-	twoWeeksBeforeEpoch := latestEpoch - 255*14
-	threeWeeksBeforeEpoch := latestEpoch - 255*21
+	lastDayEpoch := latestEpoch - 771
+	lastWeekEpoch := latestEpoch - 5400
+	lastMonthEpoch := latestEpoch - 23914
+	twoWeeksBeforeEpoch := latestEpoch - 5400*2
+	threeWeeksBeforeEpoch := latestEpoch - 5400*3
 
 	if lastDayEpoch < 0 {
 		lastDayEpoch = 0
@@ -196,7 +196,7 @@ func getValidatorEarnings(validators []uint64, poolName string) {
 	}{}
 
 	err = DB.Select(&deposits, `
-	SELECT block_slot / 32 AS epoch, amount, publickey 
+	SELECT block_slot / 16 AS epoch, amount, publickey 
 	FROM blocks_deposits 
 	WHERE publickey IN (
 		SELECT pubkey 
@@ -271,7 +271,7 @@ func updateChartDB(poolName string, epoch int64, income int64, balance int64) {
 
 func deleteOldChartEntries() {
 	latestEpoch := int64(latestEpoch)
-	sixMonthsOld := latestEpoch - 225*31*6
+	sixMonthsOld := latestEpoch - 23914*6
 	_, err := DB.Exec(`
 		DELETE FROM staking_pools_chart
 		WHERE epoch <= $1

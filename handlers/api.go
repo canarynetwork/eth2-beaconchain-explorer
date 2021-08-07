@@ -537,7 +537,7 @@ func ApiValidatorBalanceHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.DB.Query("SELECT validator_balances_p.* FROM validator_balances_p LEFT JOIN validators ON validators.validatorindex = validator_balances_p.validatorindex WHERE week >= ((SELECT MAX(epoch) FROM epochs)-100)/(225*7) AND (validators.validatorindex = ANY($1) OR validators.pubkey = ANY($2)) ORDER BY epoch DESC, validatorindex LIMIT 100", pq.Array(queryIndices), queryPubkeys)
+	rows, err := db.DB.Query("SELECT validator_balances_p.* FROM validator_balances_p LEFT JOIN validators ON validators.validatorindex = validator_balances_p.validatorindex WHERE week >= ((SELECT MAX(epoch) FROM epochs)-100)/(5400) AND (validators.validatorindex = ANY($1) OR validators.pubkey = ANY($2)) ORDER BY epoch DESC, validatorindex LIMIT 100", pq.Array(queryIndices), queryPubkeys)
 	if err != nil {
 		sendErrorResponse(j, r.URL.String(), "could not retrieve db results")
 		return
@@ -616,7 +616,7 @@ func ApiValidatorAttestationEffectiveness(w http.ResponseWriter, r *http.Request
 		FROM attestation_assignments_p aa
 		INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
 		INNER JOIN validators ON validators.validatorindex = aa.validatorindex
-		WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND (validators.validatorindex = ANY($2) OR validators.pubkey = ANY($3)) AND aa.inclusionslot > 0
+		WHERE aa.week >= $1 / 5400 AND aa.epoch > $1 AND (validators.validatorindex = ANY($2) OR validators.pubkey = ANY($3)) AND aa.inclusionslot > 0
 		GROUP BY aa.validatorindex, validators.pubkey
 		ORDER BY aa.validatorindex`,
 		epoch, pq.Array(queryIndices), queryPubkeys)
@@ -681,7 +681,7 @@ func getAttestationEfficiencyQuery(epoch int64, queryIndices []uint64, queryPubk
 	FROM attestation_assignments_p aa
 	INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
 	INNER JOIN validators ON validators.validatorindex = aa.validatorindex
-	WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND (validators.validatorindex = ANY($2) OR validators.pubkey = ANY($3)) AND aa.inclusionslot > 0
+	WHERE aa.week >= $1 / 5400 AND aa.epoch > $1 AND (validators.validatorindex = ANY($2) OR validators.pubkey = ANY($3)) AND aa.inclusionslot > 0
 	GROUP BY aa.validatorindex, validators.pubkey
 	ORDER BY aa.validatorindex
 	`, epoch, pq.Array(queryIndices), queryPubkeys)
@@ -765,7 +765,7 @@ func ApiValidatorAttestations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.DB.Query("SELECT attestation_assignments_p.* FROM attestation_assignments_p LEFT JOIN validators ON validators.validatorindex = attestation_assignments_p.validatorindex WHERE (validators.validatorindex = ANY($1) OR validators.pubkey = ANY($2)) AND week >= $3 / 1575 AND epoch > $3 ORDER BY validatorindex, epoch desc LIMIT 100", pq.Array(queryIndices), queryPubkeys, services.LatestEpoch()-10)
+	rows, err := db.DB.Query("SELECT attestation_assignments_p.* FROM attestation_assignments_p LEFT JOIN validators ON validators.validatorindex = attestation_assignments_p.validatorindex WHERE (validators.validatorindex = ANY($1) OR validators.pubkey = ANY($2)) AND week >= $3 / 5400 AND epoch > $3 ORDER BY validatorindex, epoch desc LIMIT 100", pq.Array(queryIndices), queryPubkeys, services.LatestEpoch()-10)
 	if err != nil {
 		sendErrorResponse(j, r.URL.String(), "could not retrieve db results")
 		return
@@ -1705,7 +1705,7 @@ func APIDashboardDataBalance(w http.ResponseWriter, r *http.Request) {
 			COALESCE(SUM(balance),0) AS balance,
 			COUNT(*) AS validatorcount
 		FROM validator_balances_p
-		WHERE validatorindex = ANY($1) AND epoch > $2 AND week >= $2 / 1575
+		WHERE validatorindex = ANY($1) AND epoch > $2 AND week >= $2 / 5400
 		GROUP BY epoch
 		ORDER BY epoch ASC`
 

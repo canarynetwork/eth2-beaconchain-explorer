@@ -35,9 +35,9 @@ func GetValidatorOnlineThresholdSlot() uint64 {
 func GetValidatorEarnings(validators []uint64, currency string) (*types.ValidatorEarnings, error) {
 	validatorsPQArray := pq.Array(validators)
 	latestEpoch := int64(services.LatestEpoch())
-	lastDayEpoch := latestEpoch - 225
-	lastWeekEpoch := latestEpoch - 225*7
-	lastMonthEpoch := latestEpoch - 225*31
+	lastDayEpoch := latestEpoch - 771
+	lastWeekEpoch := latestEpoch - 5400
+	lastMonthEpoch := latestEpoch - 23914
 
 	if lastDayEpoch < 0 {
 		lastDayEpoch = 0
@@ -71,7 +71,7 @@ func GetValidatorEarnings(validators []uint64, currency string) (*types.Validato
 		Publickey []byte
 	}{}
 
-	err = db.DB.Select(&deposits, "SELECT block_slot / 32 AS epoch, amount, publickey FROM blocks_deposits WHERE publickey IN (SELECT pubkey FROM validators WHERE validatorindex = ANY($1))", validatorsPQArray)
+	err = db.DB.Select(&deposits, "SELECT block_slot / 16 AS epoch, amount, publickey FROM blocks_deposits WHERE publickey IN (SELECT pubkey FROM validators WHERE validatorindex = ANY($1))", validatorsPQArray)
 	if err != nil {
 		return nil, err
 	}

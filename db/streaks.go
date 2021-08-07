@@ -45,10 +45,10 @@ func UpdateAttestationStreaks() (updatedToLastFinalizedEpoch bool, err error) {
 	}
 	endEpoch := lastFinalizedEpoch
 
-	day := int(startEpoch / 225)
+	day := int(startEpoch / 771)
 
-	if int(endEpoch/225) > day {
-		endEpoch = (day+1)*225 - 1
+	if int(endEpoch/771) > day {
+		endEpoch = (day+1)*771 - 1
 	}
 
 	if startEpoch > endEpoch {
@@ -81,20 +81,20 @@ func UpdateAttestationStreaks() (updatedToLastFinalizedEpoch bool, err error) {
 	boundingsQry := ``
 	if startEpoch == endEpoch {
 		// if we are only looking at 1 epoch there is no way to limit the search-space
-		boundingsQry = `boundings as (select validatorindex, $2+1 as epoch, status from attestation_assignments_p where week = $2/255/7 and epoch = $2),`
+		boundingsQry = `boundings as (select validatorindex, $2+1 as epoch, status from attestation_assignments_p where week = $2/5400 and epoch = $2),`
 	} else {
 		// use validator_stats table to limit search-space
-		nomissesQry := `select validatorindex, $2+1 as epoch, 1 as status from validator_stats where day = $1/225 and (missed_attestations = 0 or missed_attestations is null) and validatorindex != 2147483647`
+		nomissesQry := `select validatorindex, $2+1 as epoch, 1 as status from validator_stats where day = $1/771 and (missed_attestations = 0 or missed_attestations is null) and validatorindex != 2147483647`
 		if !statsExist {
 			// if the validator_stats table has no entry for this day we find validators with only misses or no misses
-			nomissesQry = `select validatorindex, $2+1 as epoch, status from attestation_assignments_p where week = $1/225/7 and epoch >= $1 and epoch <= $2 group by validatorindex, status having count(*) = $2-$1+1`
+			nomissesQry = `select validatorindex, $2+1 as epoch, status from attestation_assignments_p where week = $1/5400 and epoch >= $1 and epoch <= $2 group by validatorindex, status having count(*) = $2-$1+1`
 		}
 		boundingsQry = fmt.Sprintf(`
 			-- limit search-space
 			nomisses as (%s),
 			aa as (
 				select validatorindex, epoch, status from attestation_assignments_p 
-				where week = $1/225/7 and epoch >= $1 and epoch <= $2 and validatorindex not in (select validatorindex from nomisses)
+				where week = $1/5400 and epoch >= $1 and epoch <= $2 and validatorindex not in (select validatorindex from nomisses)
 			),
 			-- find boundings
 			boundings as (

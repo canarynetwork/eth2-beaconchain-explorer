@@ -472,7 +472,7 @@ func inclusionDistanceChartData() (*types.GenericChartData, error) {
 		select a.epoch, avg(a.inclusionslot - a.attesterslot) as inclusiondistance
 		from attestation_assignments_p a
 		inner join blocks b on b.slot = a.attesterslot and b.status = '1'
-		where a.week >= $1 / 1575 a.epoch > $1 and a.inclusionslot > 0
+		where a.week >= $1 / 5400 a.epoch > $1 and a.inclusionslot > 0
 		group by a.epoch
 		order by a.epoch asc`, epochOffset)
 	if err != nil {
@@ -527,7 +527,7 @@ func votingDistributionChartData() (*types.GenericChartData, error) {
 		select a.epoch, avg(a.inclusionslot - a.attesterslot) as inclusiondistance
 		from attestation_assignments_p a
 		inner join blocks b on b.slot = a.attesterslot and b.status = '1'
-		where a.inclusionslot > 0 and a.epoch > $1and a.week >= $1 / 1575
+		where a.inclusionslot > 0 and a.epoch > $1and a.week >= $1 / 5400
 		group by a.epoch
 		order by a.epoch asc`, epochOffset)
 	if err != nil {
@@ -582,19 +582,19 @@ func averageDailyValidatorIncomeChartData() (*types.GenericChartData, error) {
 					left join validator_balances_p vb
 						on vb.validatorindex = v.validatorindex
 						and vb.epoch = v.activationepoch
-						and vb.week = v.activationepoch / 1575
+						and vb.week = v.activationepoch / 5400
 				order by vb.epoch
 			),
 			extradeposits as (
 				select distinct
-					(d.block_slot/32)-1 AS epoch,
+					(d.block_slot/16)-1 AS epoch,
 					sum(d.amount) over (
-						order by d.block_slot/32 asc
+						order by d.block_slot/16 asc
 					) as amount
 				from validators
 					inner join blocks_deposits d
 						on d.publickey = validators.pubkey
-						and d.block_slot/32 > validators.activationepoch
+						and d.block_slot/16 > validators.activationepoch
 				order by epoch
 			)
 		select 
@@ -678,19 +678,19 @@ func stakingRewardsChartData() (*types.GenericChartData, error) {
 					left join validator_balances_p vb
 						on vb.validatorindex = v.validatorindex
 						and vb.epoch = v.activationepoch
-						and vb.week = v.activationepoch / 1575
+						and vb.week = v.activationepoch / 5400
 				order by vb.epoch
 			),
 			extradeposits as (
 				select distinct
-					(d.block_slot/32)-1 AS epoch,
+					(d.block_slot/16)-1 AS epoch,
 					sum(d.amount) over (
-						order by d.block_slot/32 asc
+						order by d.block_slot/16 asc
 					) as amount
 				from validators
 					inner join blocks_deposits d
 						on d.publickey = validators.pubkey
-						and d.block_slot/32 > validators.activationepoch
+						and d.block_slot/16 > validators.activationepoch
 				order by epoch
 			)
 		select 
@@ -770,12 +770,12 @@ func estimatedValidatorIncomeChartData() (*types.GenericChartData, error) {
 		with
 			extradeposits as (
 				select
-					(d.block_slot/32) as epoch,
+					(d.block_slot/16) as epoch,
 					sum(d.amount) as amount
 					from validators
 				inner join blocks_deposits d 
 					on d.publickey = validators.pubkey
-					and (d.block_slot/32) > validators.activationepoch
+					and (d.block_slot/16) > validators.activationepoch
 				group by epoch
 			)
 		select 
