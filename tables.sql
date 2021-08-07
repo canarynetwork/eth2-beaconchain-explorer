@@ -635,9 +635,7 @@ CREATE TABLE stats_process (
 	sync_eth2_fallback_configured  bool 				not null,
 	sync_eth2_fallback_connected 	bool	 			not null,
 	
-	meta_id 	 		bigint    			not null,
-	
-	foreign key(meta_id) references stats_meta(id)
+	meta_id 	 		bigint    			not null
 );
 create index idx_stats_process_metaid on stats_process (meta_id);
 
@@ -702,11 +700,8 @@ CREATE TABLE stats_system (
 	
 	misc_node_boot_ts_seconds	 	bigint		 	not null,
 	misc_os		 		character varying(6)  	not null,
-	
-	meta_id	 			bigint		 	not null,
-	
-	
-	foreign key(meta_id) references stats_meta(id)
+
+	meta_id	 			bigint		 	not null
 );
 
 create index idx_stats_system_meta_id on stats_system (meta_id);

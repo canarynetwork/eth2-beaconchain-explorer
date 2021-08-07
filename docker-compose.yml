@@ -18,7 +18,7 @@ services:
 
 
     postgres:
-        image: postgres:12.0
+        image: postgres:13-alpine
         container_name: postgres 
         restart: always
         environment:
@@ -27,8 +27,10 @@ services:
             - POSTGRES_DB=db
             - PGDATA=/postgresql/data
         volumes:
-            - db:/postgresql/data
-        network_mode: host
+            - ./pg_db:/postgresql/data
+            - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql
+        ports:
+            - '5432:5432'
 
     prysm:
         image: gcr.io/prysmaticlabs/prysm/beacon-chain:latest

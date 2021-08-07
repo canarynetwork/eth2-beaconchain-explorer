@@ -20,7 +20,6 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2
-	github.com/google/go-querystring v1.0.0
 	github.com/gorilla/context v1.1.1
 	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/mux v1.8.0
@@ -46,8 +45,8 @@ require (
 	github.com/protolambda/zssz v0.1.5
 	github.com/protolambda/ztyp v0.1.0
 	github.com/prysmaticlabs/eth2-types v0.0.0-20210303084904-c9735a06829d
-	github.com/prysmaticlabs/ethereumapis v0.0.0-20210818160529-ab1ec7a0bf07
 	github.com/prysmaticlabs/go-bitfield v0.0.0-20210809151128-385d8c5e3fb7
+	github.com/prysmaticlabs/protoc-gen-go-cast v0.0.0-20210505221644-3b823fdaca7f // indirect
 	github.com/prysmaticlabs/prysm v1.4.2-0.20210816195537-4db77ce69181
 	github.com/rocket-pool/rocketpool-go v1.0.1
 	github.com/sirupsen/logrus v1.8.1

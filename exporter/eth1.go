@@ -191,6 +191,13 @@ func fetchEth1Deposits(fromBlock, toBlock uint64) (depositsToSave []*types.Eth1D
 			cfg.ZeroHash[:],
 		)
 	}
+	if utils.Config.Chain.Network == "stake" {
+		domain, err = helpers.ComputeDomain(
+			cfg.DomainDeposit,
+			[]byte{0x00, 0x00, 0x64, 0x64},
+			cfg.ZeroHash[:],
+		)
+	}
 	if err != nil {
 		return nil, err
 	}
