@@ -37,7 +37,7 @@
         <div class="container mt-2">
             <div class="row my-3">
                 <div class="col-lg-6 col-sm-8 col-xl-5 mx-auto">
-                    <h1 class="h2">Sign in to <i>beaconcha.in</i></h1>
+                    <h1 class="h2">Sign in to <i>{{$.SiteDomain}}</i></h1>
                     <p>Manage and track the progress of your validator.</p>
                     {{if .Flashes}}
                         {{range $i, $flash := .Flashes}}

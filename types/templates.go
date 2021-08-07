@@ -15,6 +15,7 @@ type PageData struct {
 	Active                string
 	HeaderAd              bool
 	Meta                  *Meta
+	SiteDomain            string
 	ShowSyncingMessage    bool
 	User                  *User
 	Data                  interface{}
