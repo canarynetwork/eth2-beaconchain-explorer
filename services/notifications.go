@@ -866,7 +866,7 @@ func (n *ethClientNotification) GetInfo(includeUrl bool) string {
 		case "Lighthouse":
 			url = "https://github.com/sigp/lighthouse/releases"
 		default:
-			url = "https://beaconcha.in/ethClients"
+			url = fmt.Sprintf("https://%s/ethClients", utils.Config.Frontend.SiteDomain)
 		}
 
 		return generalPart + " " + url
