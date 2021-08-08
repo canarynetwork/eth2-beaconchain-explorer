@@ -31,7 +31,7 @@
 {{define "js"}}
 <script src="/js/d3.min.js"></script>
 <script>
-  var defaultEpoch = '{ "epoch": 0, "finalized": false, "justified": false, "previousjustified": false, "participation": 0, "slots": [{ "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }] }'
+  var defaultEpoch = '{ "epoch": 0, "finalized": false, "justified": false, "previousjustified": false, "participation": 0, "slots": [{ "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }, { "status": "scheduled" }] }'
   // set the default
 
   var epoch0 = JSON.parse(defaultEpoch)
@@ -98,7 +98,7 @@
 
     // Define X axis
     var x = d3.scaleLinear()
-      .domain([0, 32])
+      .domain([0, 16])
       .range([margin.left, width - margin.right])
       .interpolate(d3.interpolateRound)
 

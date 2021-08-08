@@ -67,8 +67,8 @@
 
                 this.config = {}
 
-                this.config.secondsPerSlot = 12
-                this.config.slotsPerEpoch = 32
+                this.config.secondsPerSlot = 7
+                this.config.slotsPerEpoch = 16
                 this.config.secondsPerEpoch = this.config.secondsPerSlot * this.config.slotsPerEpoch
                 this.config.epochsPerDay = 3600 * 24 / this.config.secondsPerEpoch
                 this.config.minNetworkStake = 32e9 * 16387
@@ -408,8 +408,8 @@
                 } else {
                     document.getElementById('staking-variable-yourStake-validation').style.display = "none"
                 }
-                if (isNaN(p.networkStake) || p.networkStake < 32 * 16387 * 1e9) {
-                    p.networkStake = 32 * 16387 * 1e9
+                if (isNaN(p.networkStake) || p.networkStake < 32 * 2047 * 1e9) {
+                    p.networkStake = 32 * 2047 * 1e9
                     document.getElementById('staking-variable-totalStake-validation').style.display = "initial"
                 } else {
                     document.getElementById('staking-variable-totalStake-validation').style.display = "none"
