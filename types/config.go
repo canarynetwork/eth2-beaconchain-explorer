@@ -134,6 +134,7 @@ type Config struct {
 			Info      string        `yaml:"info" envconfig:"FRONTEND_COUNTDOWN_INFO"`
 		} `yaml:"countdown"`
 		Eth1ExplorerBase string `yaml:"eth1ExplorerBase" envconfig:"FRONTEND_ETH1_EXPLORER_BASE"`
+		Eth1Currency     string `yaml:"eth1Currency" envconfig:"FRONTEND_ETH1_CURRENCY"`
 	} `yaml:"frontend"`
 	Metrics struct {
 		Enabled bool   `yaml:"enabled" envconfig:"METRICS_ENABLED"`
