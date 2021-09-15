@@ -57,6 +57,8 @@ type PageData struct {
 	Phase0                Phase0
 	Lang                  string
 	NoAds                 bool
+	DefaultCurrency       string
+	DefaultCurrencyName   string
 }
 
 // Meta is a struct to hold metadata about the page

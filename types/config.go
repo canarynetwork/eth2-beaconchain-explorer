@@ -133,8 +133,10 @@ type Config struct {
 			Timestamp uint64        `yaml:"timestamp" envconfig:"FRONTEND_COUNTDOWN_TIMESTAMP"`
 			Info      string        `yaml:"info" envconfig:"FRONTEND_COUNTDOWN_INFO"`
 		} `yaml:"countdown"`
-		Eth1ExplorerBase string `yaml:"eth1ExplorerBase" envconfig:"FRONTEND_ETH1_EXPLORER_BASE"`
-		Eth1Currency     string `yaml:"eth1Currency" envconfig:"FRONTEND_ETH1_CURRENCY"`
+		Eth1ExplorerBase           string `yaml:"eth1ExplorerBase" envconfig:"FRONTEND_ETH1_EXPLORER_BASE"`
+		Eth1Currency               string `yaml:"eth1Currency" envconfig:"FRONTEND_ETH1_CURRENCY"`
+		Eth1CurrencyName           string `yaml:"eth1CurrencyName" envconfig:"FRONTEND_ETH1_CURRENCY_NAME"`
+		Eth1CurrencyFormatDecimals int    `yaml:"eth1CurrencyFormatDecimals" envconfig:"FRONTEND_ETH1_CURRENCY_FORMAT_DECIMALS"`
 	} `yaml:"frontend"`
 	Metrics struct {
 		Enabled bool   `yaml:"enabled" envconfig:"METRICS_ENABLED"`

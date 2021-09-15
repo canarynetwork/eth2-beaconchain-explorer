@@ -140,7 +140,7 @@ func FormatBalanceGwei(balance *int64, currency string) template.HTML {
 // FormatBalanceChange will return a string for a balance change
 func FormatBalanceChange(balance *int64, currency string) template.HTML {
 	balanceF := float64(*balance) / float64(1e9)
-	if currency == "ETH" {
+	if currency == Config.Frontend.Eth1Currency {
 		if balance == nil {
 			return template.HTML("<span> 0.00000 " + currency + "</span>")
 		} else if *balance == 0 {
@@ -148,9 +148,9 @@ func FormatBalanceChange(balance *int64, currency string) template.HTML {
 		}
 
 		if balanceF < 0 {
-			return template.HTML(fmt.Sprintf("<span title=\"%.0f GWei\" data-toggle=\"tooltip\" class=\"text-danger\">%.5f ETH</span>", float64(*balance), balanceF))
+			return template.HTML(fmt.Sprintf("<span data-toggle=\"tooltip\" class=\"text-danger\">%.5f %s</span>", balanceF, currency))
 		}
-		return template.HTML(fmt.Sprintf("<span title=\"%.0f GWei\" data-toggle=\"tooltip\" class=\"text-success\">+%.5f ETH</span>", float64(*balance), balanceF))
+		return template.HTML(fmt.Sprintf("<span data-toggle=\"tooltip\" class=\"text-success\">+%.5f %s</span>", balanceF, currency))
 	} else {
 		if balance == nil {
 			return template.HTML("<span> 0.00" + currency + "</span>")
@@ -518,8 +518,8 @@ func FormatIncome(balanceInt int64, currency string) template.HTML {
 
 	decimals := "%.2f"
 
-	if currency == "ETH" {
-		decimals = "%.5f"
+	if currency == Config.Frontend.Eth1Currency {
+		decimals = fmt.Sprintf("%%.%df", Config.Frontend.Eth1CurrencyFormatDecimals)
 	}
 
 	rb := []rune(p.Sprintf(decimals, balance*exchangeRate))
