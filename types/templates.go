@@ -361,6 +361,10 @@ type ValidatorStatsTableRow struct {
 	DepositsAmount         sql.NullInt64 `db:"deposits_amount"`
 }
 
+type ValidatorsLeaderboardPageData struct {
+	Currency string
+}
+
 type ChartDataPoint struct {
 	X     float64 `json:"x"`
 	Y     float64 `json:"y"`
