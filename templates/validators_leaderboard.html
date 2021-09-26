@@ -38,7 +38,7 @@
                         targets: 3,
                         data: '3',
                         render: function (data, type, row, meta) {
-                            return (data / 10e8).toFixed(4) + " STAKE"
+                            return (data / 10e8).toFixed(4) + " {{ .Currency }}"
                         },
                         "orderable": false
                     }

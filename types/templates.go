@@ -386,6 +386,10 @@ type ValidatorStatsTableRow struct {
 	OrphanedSync           sql.NullInt64 `db:"orphaned_sync"`
 }
 
+type ValidatorsLeaderboardPageData struct {
+	Currency string
+}
+
 type ChartDataPoint struct {
 	X     float64 `json:"x"`
 	Y     float64 `json:"y"`
