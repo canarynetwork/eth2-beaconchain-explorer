@@ -334,6 +334,8 @@ type ValidatorPageData struct {
 	InclusionDelay                      int64
 	CurrentAttestationStreak            uint64
 	LongestAttestationStreak            uint64
+	Eth1Label                           string
+	Eth2Label                           string
 	IsRocketpool                        bool
 	Rocketpool                          *RocketpoolValidatorPageData
 }

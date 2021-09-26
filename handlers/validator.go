@@ -58,6 +58,10 @@ func Validator(w http.ResponseWriter, r *http.Request) {
 	validatorPageData.NetworkStats = services.LatestIndexPageData()
 	validatorPageData.User = data.User
 
+	// Set 'Eth1' and 'Eth2' networks labels
+	validatorPageData.Eth1Label = utils.Config.Frontend.Eth1Label
+	validatorPageData.Eth2Label = utils.Config.Frontend.Eth2Label
+
 	validatorPageData.FlashMessage, err = utils.GetFlash(w, r, validatorEditFlash)
 	if err != nil {
 		logger.Errorf("error retrieving flashes for validator %v: %v", vars["index"], err)
