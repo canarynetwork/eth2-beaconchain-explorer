@@ -137,6 +137,8 @@ type Config struct {
 		Eth1Currency               string `yaml:"eth1Currency" envconfig:"FRONTEND_ETH1_CURRENCY"`
 		Eth1CurrencyName           string `yaml:"eth1CurrencyName" envconfig:"FRONTEND_ETH1_CURRENCY_NAME"`
 		Eth1CurrencyFormatDecimals int    `yaml:"eth1CurrencyFormatDecimals" envconfig:"FRONTEND_ETH1_CURRENCY_FORMAT_DECIMALS"`
+		Eth1Label                  string `yaml:"eth1Label" envconfig:"FRONTEND_ETH1_LABEL"`
+		Eth2Label                  string `yaml:"eth2Label" envconfig:"FRONTEND_ETH2_LABEL"`
 	} `yaml:"frontend"`
 	Metrics struct {
 		Enabled bool   `yaml:"enabled" envconfig:"METRICS_ENABLED"`

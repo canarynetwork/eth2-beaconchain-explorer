@@ -44,6 +44,8 @@ frontend:
   eth1Currency: 'EXM'
   eth1CurrencyName: 'Example'
   eth1CurrencyFormatDecimals: 5
+  eth1Label: "Eth1"
+  eth2Labal: "Eth2"
 
 # Indexer config
 indexer:
