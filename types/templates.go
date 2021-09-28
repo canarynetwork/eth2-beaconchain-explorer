@@ -58,6 +58,7 @@ type PageData struct {
 	Lang                  string
 	DefaultCurrency       string
 	DefaultCurrencyName   string
+	NoAds                 bool
 }
 
 // Meta is a struct to hold metadata about the page
@@ -329,6 +330,21 @@ type ValidatorPageData struct {
 	LongestAttestationStreak            uint64
 	Eth1Label                           string
 	Eth2Label                           string
+	IsRocketpool                        bool
+	Rocketpool                          *RocketpoolValidatorPageData
+}
+
+type RocketpoolValidatorPageData struct {
+	NodeAddress          *[]byte    `db:"node_address"`
+	MinipoolAddress      *[]byte    `db:"minipool_address"`
+	MinipoolNodeFee      *float64   `db:"minipool_node_fee"`
+	MinipoolDepositType  *string    `db:"minipool_deposit_type"`
+	MinipoolStatus       *string    `db:"minipool_status"`
+	MinipoolStatusTime   *time.Time `db:"minipool_status_time"`
+	NodeTimezoneLocation *string    `db:"node_timezone_location"`
+	NodeRPLStake         *string    `db:"node_rpl_stake"`
+	NodeMinRPLStake      *string    `db:"node_min_rpl_stake"`
+	NodeMaxRPLStake      *string    `db:"node_max_rpl_stake"`
 }
 
 type ValidatorStatsTablePageData struct {
@@ -910,6 +926,7 @@ type MyCryptoSignature struct {
 type User struct {
 	UserID        uint64 `json:"user_id"`
 	Authenticated bool   `json:"authenticated"`
+	Subscription  string `json:"subscription"`
 }
 
 type UserSubscription struct {
@@ -920,6 +937,14 @@ type UserSubscription struct {
 	SubscriptionID *string `db:"subscription_id"`
 	PriceID        *string `db:"price_id"`
 	ApiKey         *string `db:"api_key"`
+}
+
+type UserPremiumSubscription struct {
+	UserID       uint64 `db:"user_id"`
+	Store        string `db:"store"`
+	Active       bool   `db:"active"`
+	Package      string `db:"product_id"`
+	RejectReason string `db:"reject_reason"`
 }
 
 type StripeSubscription struct {
@@ -949,6 +974,7 @@ type UserSettingsPageData struct {
 	CsrfField template.HTML
 	AuthData
 	Subscription        UserSubscription
+	Premium             UserPremiumSubscription
 	PairedDevices       []PairedDevice
 	Sapphire            *string
 	Emerald             *string
@@ -999,9 +1025,23 @@ type ApiPricing struct {
 	Diamond      string
 }
 
+type MobilePricing struct {
+	FlashMessage         string
+	User                 *User
+	CsrfField            template.HTML
+	RecaptchaKey         string
+	Subscription         UserSubscription
+	StripePK             string
+	Plankton             string
+	Goldfish             string
+	Whale                string
+	ActiveMobileStoreSub bool
+}
+
 type StakeWithUsPageData struct {
 	FlashMessage string
 	RecaptchaKey string
+	NoAds        bool
 }
 type RateLimitError struct {
 	TimeLeft time.Duration
@@ -1040,4 +1080,62 @@ type ApiStatistics struct {
 	Monthly    *int `db:"monthly"`
 	MaxDaily   *int
 	MaxMonthly *int
+}
+
+type RocketpoolPageData struct{}
+type RocketpoolPageDataMinipool struct {
+	TotalCount               uint64    `db:"total_count"`
+	RocketpoolStorageAddress []byte    `db:"rocketpool_storage_address"`
+	ValidatorName            string    `db:"validator_name"`
+	Address                  []byte    `db:"address"`
+	Pubkey                   []byte    `db:"pubkey"`
+	NodeAddress              []byte    `db:"node_address"`
+	NodeFee                  float64   `db:"node_fee"`
+	DepositType              string    `db:"deposit_type"`
+	Status                   string    `db:"status"`
+	StatusTime               time.Time `db:"status_time"`
+}
+
+type RocketpoolPageDataNode struct {
+	TotalCount               uint64 `db:"total_count"`
+	RocketpoolStorageAddress []byte `db:"rocketpool_storage_address"`
+	Address                  []byte `db:"address"`
+	TimezoneLocation         string `db:"timezone_location"`
+	RPLStake                 string `db:"rpl_stake"`
+	MinRPLStake              string `db:"min_rpl_stake"`
+	MaxRPLStake              string `db:"max_rpl_stake"`
+}
+
+type RocketpoolPageDataDAOProposal struct {
+	TotalCount               uint64    `db:"total_count"`
+	RocketpoolStorageAddress []byte    `db:"rocketpool_storage_address"`
+	ID                       uint64    `db:"id"`
+	DAO                      string    `db:"dao"`
+	ProposerAddress          []byte    `db:"proposer_address"`
+	Message                  string    `db:"message"`
+	CreatedTime              time.Time `db:"created_time"`
+	StartTime                time.Time `db:"start_time"`
+	EndTime                  time.Time `db:"end_time"`
+	ExpiryTime               time.Time `db:"expiry_time"`
+	VotesRequired            float64   `db:"votes_required"`
+	VotesFor                 float64   `db:"votes_for"`
+	VotesAgainst             float64   `db:"votes_against"`
+	MemberVoted              bool      `db:"member_voted"`
+	MemberSupported          bool      `db:"member_supported"`
+	IsCancelled              bool      `db:"is_cancelled"`
+	IsExecuted               bool      `db:"is_executed"`
+	Payload                  []byte    `db:"payload"`
+	State                    string    `db:"state"`
+}
+
+type RocketpoolPageDataDAOMember struct {
+	TotalCount               uint64    `db:"total_count"`
+	RocketpoolStorageAddress []byte    `db:"rocketpool_storage_address"`
+	Address                  []byte    `db:"address"`
+	ID                       string    `db:"id"`
+	URL                      string    `url:"url"`
+	JoinedTime               time.Time `db:"joined_time"`
+	LastProposalTime         time.Time `db:"last_proposal_time"`
+	RPLBondAmount            string    `db:"rpl_bond_amount"`
+	UnbondedValidatorCount   uint64    `db:"unbonded_validator_count"`
 }
