@@ -172,7 +172,8 @@ func GetCurrency(r *http.Request) string {
 		return cookie.Value
 	}
 
-	return "ETH"
+	return utils.Config.Frontend.Eth1Currency
+	// return "ETH"
 }
 
 func GetCurrencySymbol(r *http.Request) string {

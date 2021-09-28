@@ -21,6 +21,11 @@ func ValidatorsLeaderboard(w http.ResponseWriter, r *http.Request) {
 	data := InitPageData(w, r, "validators", "/validators/leaderboard", "Validator Staking Leaderboard")
 	data.HeaderAd = true
 
+	pageData := &types.ValidatorsLeaderboardPageData{}
+	pageData.Currency = data.DefaultCurrency
+
+	data.Data = pageData
+
 	err := validatorsLeaderboardTemplate.ExecuteTemplate(w, "layout", data)
 
 	if err != nil {

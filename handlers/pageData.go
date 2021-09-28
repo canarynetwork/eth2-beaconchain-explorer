@@ -63,6 +63,8 @@ func InitPageData(w http.ResponseWriter, r *http.Request, active, path, title st
 		ClientsUpdated:        ethclients.ClientsUpdated(),
 		Phase0:                utils.Config.Chain.Phase0,
 		Lang:                  "en-US",
+		DefaultCurrency:       utils.Config.Frontend.Eth1Currency,
+		DefaultCurrencyName:   utils.Config.Frontend.Eth1CurrencyName,
 	}
 	data.EthPrice = price.GetEthPrice(data.Currency)
 	data.ExchangeRate = price.GetEthPrice(data.Currency)

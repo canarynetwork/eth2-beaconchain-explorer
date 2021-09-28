@@ -56,6 +56,8 @@ type PageData struct {
 	IsUserClientUpdated   func(uint64) bool
 	Phase0                Phase0
 	Lang                  string
+	DefaultCurrency       string
+	DefaultCurrencyName   string
 }
 
 // Meta is a struct to hold metadata about the page
@@ -325,6 +327,8 @@ type ValidatorPageData struct {
 	InclusionDelay                      int64
 	CurrentAttestationStreak            uint64
 	LongestAttestationStreak            uint64
+	Eth1Label                           string
+	Eth2Label                           string
 }
 
 type ValidatorStatsTablePageData struct {
@@ -357,6 +361,10 @@ type ValidatorStatsTableRow struct {
 	ProposerSlashings      sql.NullInt64 `db:"proposer_slashings"`
 	Deposits               sql.NullInt64 `db:"deposits"`
 	DepositsAmount         sql.NullInt64 `db:"deposits_amount"`
+}
+
+type ValidatorsLeaderboardPageData struct {
+	Currency string
 }
 
 type ChartDataPoint struct {

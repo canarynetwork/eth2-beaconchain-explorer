@@ -42,6 +42,11 @@ frontend:
       user: "<emailuser>"
       password: "<emailpassword>"
   flashSecret: "" # Encryption secret for flash cookies
+  eth1Currency: 'EXM'
+  eth1CurrencyName: 'Example'
+  eth1CurrencyFormatDecimals: 5
+  eth1Label: "Eth1"
+  eth2Label: "Eth2"
 
 # Indexer config
 indexer:
