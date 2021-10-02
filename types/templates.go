@@ -385,6 +385,10 @@ type ValidatorsLeaderboardPageData struct {
 	Currency string
 }
 
+type Eth2DepositsPageData struct {
+	Eth2Label string
+}
+
 type ChartDataPoint struct {
 	X     float64 `json:"x"`
 	Y     float64 `json:"y"`

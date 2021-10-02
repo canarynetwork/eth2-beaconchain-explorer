@@ -18,8 +18,12 @@ func Eth2Deposits(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 
+	eth2DepositsPageData := types.Eth2DepositsPageData{}
+	eth2DepositsPageData.Eth2Label = utils.Config.Frontend.Eth2Label
+
 	data := InitPageData(w, r, "eth2Deposits", "/deposits/eth2", "Eth2 Deposits")
 	data.HeaderAd = true
+	data.Data = eth2DepositsPageData
 
 	err := eth2DepositsTemplate.ExecuteTemplate(w, "layout", data)
 
