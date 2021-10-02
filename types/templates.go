@@ -59,6 +59,8 @@ type PageData struct {
 	DefaultCurrency       string
 	DefaultCurrencyName   string
 	NoAds                 bool
+	Eth1Label             string
+	Eth2Label             string
 }
 
 // Meta is a struct to hold metadata about the page
