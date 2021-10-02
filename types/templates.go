@@ -874,6 +874,7 @@ type EthOneDepositsPageData struct {
 
 type EthOneDepositLeaderBoardPageData struct {
 	DepositContract string
+	Eth1Label       string
 }
 
 // EpochsPageData is a struct to hold epoch data for the epochs page

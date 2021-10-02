@@ -150,6 +150,7 @@ func Eth1DepositsLeaderboard(w http.ResponseWriter, r *http.Request) {
 
 	data.Data = types.EthOneDepositLeaderBoardPageData{
 		DepositContract: utils.Config.Indexer.Eth1DepositContractAddress,
+		Eth1Label:       utils.Config.Frontend.Eth1Label,
 	}
 
 	err := eth1DepositsLeaderboardTemplate.ExecuteTemplate(w, "layout", data)
