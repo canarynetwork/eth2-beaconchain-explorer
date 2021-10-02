@@ -152,6 +152,8 @@ type IndexPageData struct {
 	DepositChart              *ChartsPageDataChart
 	DepositDistribution       *ChartsPageDataChart
 	Countdown                 interface{}
+	Currency                  string
+	CurrencyName              string
 }
 
 type IndexPageDataEpochs struct {
