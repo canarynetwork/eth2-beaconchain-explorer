@@ -872,6 +872,8 @@ type EthOneDepositsPageData struct {
 	*Stats
 	DepositContract string
 	DepositChart    *ChartsPageDataChart
+	Eth1Label       string
+	Eth2Label       string
 }
 
 type EthOneDepositLeaderBoardPageData struct {

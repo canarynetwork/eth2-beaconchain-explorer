@@ -33,6 +33,8 @@ func Eth1Deposits(w http.ResponseWriter, r *http.Request) {
 
 	pageData.Stats = services.GetLatestStats()
 	pageData.DepositContract = utils.Config.Indexer.Eth1DepositContractAddress
+	pageData.Eth1Label = utils.Config.Frontend.Eth1Label
+	pageData.Eth2Label = utils.Config.Frontend.Eth2Label
 
 	data := InitPageData(w, r, "eth1Deposits", "/deposits/eth1", "Eth1 Deposits")
 	data.HeaderAd = true
