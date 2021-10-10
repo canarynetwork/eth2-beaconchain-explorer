@@ -148,12 +148,14 @@ func indexPageDataUpdater() {
 }
 
 func getIndexPageData() (*types.IndexPageData, error) {
-	currency := "ETH"
-
 	data := &types.IndexPageData{}
 	data.Mainnet = utils.Config.Chain.Mainnet
 	data.NetworkName = utils.Config.Chain.Network
 	data.DepositContract = utils.Config.Indexer.Eth1DepositContractAddress
+	data.Currency = utils.Config.Frontend.Eth1Currency
+	data.CurrencyName = utils.Config.Frontend.Eth1CurrencyName
+
+	currency := data.Currency
 
 	var epoch uint64
 	err := db.DB.Get(&epoch, "SELECT COALESCE(MAX(epoch), 0) FROM epochs")
