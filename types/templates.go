@@ -59,6 +59,8 @@ type PageData struct {
 	DefaultCurrency       string
 	DefaultCurrencyName   string
 	NoAds                 bool
+	Eth1Label             string
+	Eth2Label             string
 }
 
 // Meta is a struct to hold metadata about the page
@@ -150,6 +152,8 @@ type IndexPageData struct {
 	DepositChart              *ChartsPageDataChart
 	DepositDistribution       *ChartsPageDataChart
 	Countdown                 interface{}
+	Currency                  string
+	CurrencyName              string
 }
 
 type IndexPageDataEpochs struct {
@@ -381,6 +385,10 @@ type ValidatorStatsTableRow struct {
 
 type ValidatorsLeaderboardPageData struct {
 	Currency string
+}
+
+type Eth2DepositsPageData struct {
+	Eth2Label string
 }
 
 type ChartDataPoint struct {
@@ -864,10 +872,13 @@ type EthOneDepositsPageData struct {
 	*Stats
 	DepositContract string
 	DepositChart    *ChartsPageDataChart
+	Eth1Label       string
+	Eth2Label       string
 }
 
 type EthOneDepositLeaderBoardPageData struct {
 	DepositContract string
+	Eth1Label       string
 }
 
 // EpochsPageData is a struct to hold epoch data for the epochs page

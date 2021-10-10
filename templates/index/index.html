@@ -50,7 +50,7 @@
                             }
                         },
                         yAxis: [{
-                            title: {text: 'Balance [ETH]'},
+                            title: {text: 'Balance [{{.Currency}}]'},
                             labels: {
                                 formatter: function () {
                                     return this.value.toFixed(0);
@@ -68,7 +68,7 @@
                         }],
                         series: [
                             {
-                                name: "Staked Ether",
+                                name: "Staked {{.CurrencyName}}",
                                 yAxis: 0,
                                 data: {{.StakedEtherChartData}}
                             },
