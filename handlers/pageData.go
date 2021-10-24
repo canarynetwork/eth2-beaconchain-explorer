@@ -67,7 +67,7 @@ func InitPageData(w http.ResponseWriter, r *http.Request, active, path, title st
 		Lang:                  "en-US",
 		DefaultCurrency:       utils.Config.Frontend.Eth1Currency,
 		DefaultCurrencyName:   utils.Config.Frontend.Eth1CurrencyName,
-		NoAds:                 user.Authenticated && user.Subscription != "",
+		NoAds:                 true,
 		Eth1Label:             utils.Config.Frontend.Eth1Label,
 		Eth2Label:             utils.Config.Frontend.Eth2Label,
 	}

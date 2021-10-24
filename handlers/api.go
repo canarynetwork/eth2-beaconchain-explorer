@@ -1136,7 +1136,7 @@ func GetUserPremiumByPackage(pkg string) PremiumUser {
 		MaxNodes:               1,
 		WidgetSupport:          false,
 		NotificationThresholds: false,
-		NoAds:                  false,
+		NoAds:                  true,
 	}
 
 	if pkg == "" || pkg == "standard" {

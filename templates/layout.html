@@ -446,10 +446,12 @@
                                 <span class="nav-icon"><i class="fas fa-project-diagram mr-2"></i></span>
                                 <span class="nav-text">Block Viz</span>
                             </a>
+                            {{if not .NoAds}}
                             <a ga-outbound class="dropdown-item" href="https://eth2.ethernodes.org/">
                                 <span class="nav-icon"><i class="fas fa-network-wired mr-2"></i></span>
                                 <span class="nav-text">Nodes</span>
                             </a>
+                            {{end}}
                         </div>
                     </li>
                     <style>
@@ -569,8 +571,9 @@
                         </a>
                     </li>
                 </li>
-                
 
+
+                {{if not .NoAds}}
                 <li class="nav-item {{ if eq .Active "services"}}active{{end}} dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">  
@@ -673,6 +676,7 @@
                             </a>
                         </div>
                     </li>
+                {{end}}
                 </ul>
             </div>
         </div>
