@@ -42,7 +42,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/protolambda/zrnt v0.12.4
-	github.com/protolambda/zssz v0.1.5
 	github.com/protolambda/ztyp v0.1.0
 	github.com/prysmaticlabs/eth2-types v0.0.0-20210303084904-c9735a06829d
 	github.com/prysmaticlabs/go-bitfield v0.0.0-20210809151128-385d8c5e3fb7
@@ -52,7 +51,6 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stripe/stripe-go/v72 v72.50.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
-	github.com/swaggo/gin-swagger v1.2.0 // indirect
 	github.com/swaggo/http-swagger v1.1.2
 	github.com/swaggo/swag v1.7.4
 	github.com/urfave/negroni v1.0.0

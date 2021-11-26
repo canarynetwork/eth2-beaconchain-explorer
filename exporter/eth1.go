@@ -363,6 +363,13 @@ func eth1BatchRequestHeadersAndTxs(blocksToFetch []uint64, txsToFetch []string) 
 		return headers, txs, nil
 	}
 
+	for len(elems) > 50 {
+		ioErr := eth1RPCClient.BatchCall(elems[:50])
+		if ioErr != nil {
+			return nil, nil, ioErr
+		}
+		elems = elems[50:]
+	}
 	ioErr := eth1RPCClient.BatchCall(elems)
 	if ioErr != nil {
 		return nil, nil, ioErr

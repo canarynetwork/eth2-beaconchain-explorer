@@ -598,7 +598,7 @@ func collectAttestationNotifications(notificationsByUserID map[uint64]map[types.
 				v.pubkey as pubkey
 			FROM validators v
 			WHERE pubkey = ANY($4)) v
-			INNER JOIN attestation_assignments_p aa ON v.validatorindex = aa.validatorindex AND aa.week >= ($1 - 3) / 1575 AND aa.epoch >= ($1 - 3)
+			INNER JOIN attestation_assignments_p aa ON v.validatorindex = aa.validatorindex AND aa.week >= ($1 - 3) / 5400 AND aa.epoch >= ($1 - 3)
 			WHERE status = $3
 			AND aa.inclusionslot = 0 AND aa.attesterslot < ($2 - 16)
 			`, latestEpoch, latestSlot, status, pq.ByteaArray(keys))
