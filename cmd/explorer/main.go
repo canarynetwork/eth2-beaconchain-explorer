@@ -135,6 +135,7 @@ func main() {
 		apiV1Router.HandleFunc("/block/{slot}/attesterslashings", handlers.ApiBlockAttesterSlashings).Methods("GET", "OPTIONS")
 		apiV1Router.HandleFunc("/block/{slot}/proposerslashings", handlers.ApiBlockProposerSlashings).Methods("GET", "OPTIONS")
 		apiV1Router.HandleFunc("/block/{slot}/voluntaryexits", handlers.ApiBlockVoluntaryExits).Methods("GET", "OPTIONS")
+		apiV1Router.HandleFunc("/sync_committee/{period}", handlers.ApiSyncCommittee).Methods("GET", "OPTIONS")
 		apiV1Router.HandleFunc("/eth1deposit/{txhash}", handlers.ApiEth1Deposit).Methods("GET", "OPTIONS")
 		apiV1Router.HandleFunc("/validator/leaderboard", handlers.ApiValidatorLeaderboard).Methods("GET", "OPTIONS")
 		apiV1Router.HandleFunc("/validator/{indexOrPubkey}", handlers.ApiValidator).Methods("GET", "OPTIONS")
@@ -158,6 +159,9 @@ func main() {
 		apiV1Router.HandleFunc("/stats/{apiKey}/{machine}", handlers.ClientStatsPostOld).Methods("POST", "OPTIONS")
 		apiV1Router.HandleFunc("/stats/{apiKey}", handlers.ClientStatsPostOld).Methods("POST", "OPTIONS")
 		apiV1Router.HandleFunc("/client/metrics", handlers.ClientStatsPostNew).Methods("POST", "OPTIONS")
+		apiV1Router.HandleFunc("/app/dashboard", handlers.ApiDashboard).Methods("POST", "OPTIONS")
+		apiV1Router.HandleFunc("/rocketpool/stats", handlers.ApiRocketpoolStats).Methods("GET", "OPTIONS")
+		apiV1Router.HandleFunc("/rocketpool/validator/{indexOrPubkey}", handlers.ApiRocketpoolValidators).Methods("GET", "OPTIONS")
 
 		apiV1Router.HandleFunc("/validator/{indexOrPubkey}/widget", handlers.GetMobileWidgetStats).Methods("GET")
 		apiV1Router.Use(utils.CORSMiddleware)
@@ -301,6 +305,8 @@ func main() {
 			router.HandleFunc("/rewards", handlers.ValidatorRewards).Methods("GET")
 			router.HandleFunc("/rewards/hist", handlers.RewardsHistoricalData).Methods("GET")
 			router.HandleFunc("/rewards/hist/download", handlers.DownloadRewardsHistoricalData).Methods("GET")
+
+			router.HandleFunc("/notifications/unsubscribe", handlers.UserNotificationsUnsubscribeByHash).Methods("GET")
 
 			// router.HandleFunc("/user/validators", handlers.UserValidators).Methods("GET")
 

@@ -224,15 +224,14 @@
                         <div class="col-md-3">Avg. Validator Balance:</div>
                         <div class="col-md-9">{{formatBalance .AverageValidatorBalance $.Currency }}</div>
                     </div>
-                    <span class="row p-3 mx-0 collapsed">
-            <div style="position:relative" class="col-md-3">Slots: </div>
-            <div class="col-md-9">{{.BlocksCount}}
-                <small class="text-muted">
-                    ({{if gt .ProposedCount 0}}{{.ProposedCount}} Proposed{{end}}{{if gt .MissedCount 0}}, {{.MissedCount}} Missed{{end}}{{if gt .ScheduledCount 0}}, {{.ScheduledCount}} Pending{{end}}{{if gt .OrphanedCount 0}}, {{.OrphanedCount}} Orphaned{{end}})
-                </small>
-            </div>
-            <div style="position:relative" class="col-md-3">Sync Committee: </div>
-        </span>
+                    <div class="row p-3 mx-0 collapsed">
+                        <div style="position:relative" class="col-md-3">Slots: </div>
+                        <div class="col-md-9">{{.BlocksCount}}
+                            <small class="text-muted">
+                                ({{if gt .ProposedCount 0}}{{.ProposedCount}} Proposed{{end}}{{if gt .MissedCount 0}}, {{.MissedCount}} Missed{{end}}{{if gt .ScheduledCount 0}}, {{.ScheduledCount}} Pending{{end}}{{if gt .OrphanedCount 0}}, {{.OrphanedCount}} Orphaned{{end}})
+                            </small>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -248,6 +247,7 @@
                                 <th>Proposer</th>
                                 <th>Root Hash</th>
                                 <th>Attestations</th>
+                                <th>Sync Participation</th>
                                 <th>Deposits</th>
                                 <th>Slashings <span data-toggle="tooltip" data-placement="top"
                                                     title="Proposers">P</span> /
@@ -272,6 +272,7 @@
                                         {{end}}
                                     </td>
                                     <td>{{.Attestations}}</td>
+                                    <td>{{formatPercentageWithPrecision .SyncAggParticipation 2}}%</td>
                                     <td>{{.Deposits}}</td>
                                     <td>{{.Proposerslashings}} / {{.Attesterslashings}}</td>
                                     <td>{{.Exits}}</td>

@@ -116,20 +116,33 @@ func GetTaggedValidators(filter WatchlistFilter) ([]*types.TaggedValidators, err
 	if err != nil {
 		return nil, err
 	}
-	var validators []*types.Validator
-	if filter.JoinValidators && filter.Validators != nil {
+	if filter.JoinValidators && filter.Validators == nil {
+		pubkeys := make([][]byte, 0, len(list))
+		for _, li := range list {
+			pubkeys = append(pubkeys, li.ValidatorPublickey)
+		}
+		pubBytea := pq.ByteaArray(pubkeys)
+		filter.Validators = &pubBytea
+	}
+
+	validators := make([]*types.Validator, 0, len(list))
+	if filter.JoinValidators {
 		err := DB.Select(&validators, `SELECT balance, pubkey, validatorindex FROM validators WHERE pubkey = ANY($1) ORDER BY pubkey desc`, *filter.Validators)
 		if err != nil {
 			return nil, err
 		}
 		if len(list) != len(validators) {
 			logger.Errorf("error could not get validators for watchlist. Expected to retrieve %v validators but got %v", len(list), len(validators))
+			return list, nil
 		}
 		for i, li := range list {
-			li.Validator = validators[i]
+			if li == nil {
+				logger.Errorf("empty validator entry", list[i])
+			} else {
+				li.Validator = validators[i]
+			}
 		}
 	}
-
 	return list, nil
 }
 
@@ -147,10 +160,10 @@ type GetSubscriptionsFilter struct {
 // GetSubscriptions returns the subscriptions filtered by the provided filter.
 func GetSubscriptions(filter GetSubscriptionsFilter) ([]*types.Subscription, error) {
 	subs := []*types.Subscription{}
-	qry := "SELECT event_name, event_filter, last_sent_ts, last_sent_epoch, created_ts, created_epoch, event_threshold FROM users_subscriptions"
+	qry := "SELECT event_name, event_filter, last_sent_ts, last_sent_epoch, created_ts, created_epoch, event_threshold, ENCODE(unsubscribe_hash, 'hex') as unsubscribe_hash FROM users_subscriptions"
 
 	if filter.JoinValidator {
-		qry = "SELECT id, user_id, event_name, event_filter, last_sent_ts, created_ts, validators.balance as balance FROM users_subscriptions INNER JOIN validators ON users_subscriptions.event_filter = ENCODE(validators.pubkey::bytea, 'hex')"
+		qry = "SELECT id, user_id, event_name, event_filter, last_sent_ts, created_ts, validators.balance as balance, ENCODE(unsubscribe_hash, 'hex') as unsubscribe_hash FROM users_subscriptions INNER JOIN validators ON users_subscriptions.event_filter = ENCODE(validators.pubkey::bytea, 'hex')"
 	}
 
 	if filter.EventNames == nil && filter.UserIDs == nil && filter.EventFilters == nil {

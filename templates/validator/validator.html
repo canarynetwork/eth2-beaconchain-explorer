@@ -119,14 +119,14 @@
 							{{template "validatorIncomeTable" $}}
 						{{end}}
 					</div>
-				</div>					
+				</div>
 			</div>
 			<div class="row align-items-stretch">
 				<div class="col-lg-8 px-lg-2 my-2">
 					<div class="card h-100 px-0 py-0 card-body">
 						<ul style="margin-top: -1px;margin-left:-1px;" class="nav nav-tabs" id="chartTabs" role="tablist">
 							<li class="nav-item">
-								<a class="nav-link active" id="charts-tab" data-toggle="tab" href="#charts" role="tab" aria-controls="charts-tab-content" aria-selected="false">
+								<a class="nav-link {{if .IncomeHistoryChartData}}active{{else}}disabled{{end}}" id="charts-tab" data-toggle="tab" href="#charts" role="tab" aria-controls="charts-tab-content" aria-selected="false">
 									<i class="tab-icon mr-md-2 fas fa-chart-bar"></i>
 									<span class="tab-text">Charts</span>
 								</a>
@@ -195,11 +195,11 @@
 								<div class="tab-pane fade w-100" id="rocketpool" role="tabpanel" aria-labelledby="rocketpool-tab" aria-controls="rocketpool">
 									<div class="w-75 border-bottom d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-between ml-4 mx-lg-auto mt-5 mb-4">
 										<div class="text-nowrap font-weight-bold" style="font-size: .9rem;"><i class="fas fa-male mr-3 text-muted"></i>Minipool Address</div>
-										<div>{{formatEth1Address .Rocketpool.MinipoolAddress}}</div>
+										<div>{{formatEth1Address .Rocketpool.MinipoolAddress}} <a class="no-highlight" href="https://rocketscan.dev/minipool/{{formatEth1AddressStringLowerCase .Rocketpool.MinipoolAddress}}" target="_blank"><i class="fas fa-rocket" role="button" data-toggle="tooltip" title="" data-original-title="More infos on Rocketscan"></i></a></div>
 									</div>
 									<div class="w-75 border-bottom d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-between ml-4 mx-lg-auto mb-4">
 										<div class="text-nowrap font-weight-bold" style="font-size: .9rem;"><i class="fas fa-money-bill-wave mr-1 text-muted"></i>Minipool Commission</div>
-										<div>{{formatFloatWithPrecision 2 (mul .Rocketpool.MinipoolNodeFee 100)}}%</div>
+										<div>{{formatFloat (mul .Rocketpool.MinipoolNodeFee 100) 2}}%</div>
 									</div>
 									<div class="w-75 border-bottom d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-between ml-4 mx-lg-auto mb-4">
 										<div class="text-nowrap font-weight-bold" style="font-size: .9rem;"><i class="fas fa-wallet mr-2 text-muted"></i>Minipool Deposit Type</div>
@@ -225,7 +225,7 @@
 									</div>
 									<div class="w-75 border-bottom d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-between ml-4 mx-lg-auto mb-4">
 										<div class="text-nowrap font-weight-bold" style="font-size: .9rem;"><i class="fas fa-male mr-2 text-muted"></i> Node Address</div>
-										<div>{{formatEth1Address .Rocketpool.NodeAddress}}</div>
+										<div>{{formatEth1Address .Rocketpool.NodeAddress}} <a class="no-highlight" href="https://rocketscan.dev/node/{{formatEth1AddressStringLowerCase .Rocketpool.NodeAddress}}" target="_blank"><i class="fas fa-rocket" role="button" data-toggle="tooltip" title="" data-original-title="More infos on Rocketscan"></i></a></div>
 									</div>
 									<div class="w-75 border-bottom d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-between ml-4 mx-lg-auto mb-4">
 										<div class="text-nowrap font-weight-bold" style="font-size: .9rem;"><i class="fas fa-globe mr-2 text-muted"></i>Node Timezone</div>

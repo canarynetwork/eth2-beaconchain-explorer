@@ -19,8 +19,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/context"
+	ctxt "context"
 
+	"github.com/gorilla/context"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
@@ -328,10 +329,10 @@ func getValidatorTableData(userId uint64) (interface{}, error) {
 	}{}
 
 	err := db.FrontendDB.Select(&validatordb, `
-SELECT ENCODE(uvt.validator_publickey::bytea, 'hex') AS pubkey, us.event_name, extract( epoch from last_sent_ts)::Int as last_sent_ts, us.event_threshold
-FROM users_validators_tags uvt
-LEFT JOIN users_subscriptions us ON us.event_filter = ENCODE(uvt.validator_publickey::bytea, 'hex') AND us.user_id = uvt.user_id
-WHERE uvt.user_id = $1;`, userId)
+	SELECT ENCODE(uvt.validator_publickey, 'hex') AS pubkey, us.event_name, extract( epoch from last_sent_ts)::Int as last_sent_ts, us.event_threshold
+		FROM users_validators_tags uvt
+		LEFT JOIN users_subscriptions us ON us.event_filter = ENCODE(uvt.validator_publickey, 'hex') AND us.user_id = uvt.user_id
+		WHERE uvt.user_id = $1;`, userId)
 
 	if err != nil {
 		return validatordb, err
@@ -571,7 +572,8 @@ func UserUpdateSubscriptions(w http.ResponseWriter, r *http.Request) {
 	pqEventNames := pq.Array([]string{net + ":" + string(types.ValidatorMissedAttestationEventName),
 		net + ":" + string(types.ValidatorMissedProposalEventName),
 		net + ":" + string(types.ValidatorExecutedProposalEventName),
-		net + ":" + string(types.ValidatorGotSlashedEventName)})
+		net + ":" + string(types.ValidatorGotSlashedEventName),
+		net + ":" + string(types.SyncCommitteeSoon)})
 
 	_, err = db.FrontendDB.Exec(`
 			DELETE FROM users_subscriptions WHERE user_id=$1 AND event_filter=ANY($2) AND event_name=ANY($3);
@@ -1402,7 +1404,7 @@ Best regards,
 
 %[1]s
 `, utils.Config.Frontend.SiteDomain, emailConfirmationHash, url.QueryEscape(newEmail))
-	err = mail.SendMail(newEmail, subject, msg, []types.EmailAttachment{})
+	err = mail.SendTextMail(newEmail, subject, msg, []types.EmailAttachment{})
 	if err != nil {
 		return err
 	}
@@ -1445,7 +1447,7 @@ func UserValidatorWatchlistAdd(w http.ResponseWriter, r *http.Request) {
 
 	balance := FormValueOrJSON(r, "balance_decreases")
 	if balance == "on" {
-		err := db.AddSubscription(user.UserID, utils.Config.Chain.Phase0.ConfigName, types.ValidatorBalanceDecreasedEventName, pubKey, 0)
+		err := db.AddSubscription(user.UserID, utils.GetNetwork(), types.ValidatorBalanceDecreasedEventName, pubKey, 0)
 		if err != nil {
 			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, types.ValidatorBalanceDecreasedEventName, pubKey, err)
 			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -1454,7 +1456,7 @@ func UserValidatorWatchlistAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	slashed := FormValueOrJSON(r, "validator_slashed")
 	if slashed == "on" {
-		err := db.AddSubscription(user.UserID, utils.Config.Chain.Phase0.ConfigName, types.ValidatorGotSlashedEventName, pubKey, 0)
+		err := db.AddSubscription(user.UserID, utils.GetNetwork(), types.ValidatorGotSlashedEventName, pubKey, 0)
 		if err != nil {
 			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, types.ValidatorGotSlashedEventName, pubKey, err)
 			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -1463,7 +1465,7 @@ func UserValidatorWatchlistAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	proposalSubmitted := FormValueOrJSON(r, "validator_proposal_submitted")
 	if proposalSubmitted == "on" {
-		err := db.AddSubscription(user.UserID, utils.Config.Chain.Phase0.ConfigName, types.ValidatorExecutedProposalEventName, pubKey, 0)
+		err := db.AddSubscription(user.UserID, utils.GetNetwork(), types.ValidatorExecutedProposalEventName, pubKey, 0)
 		if err != nil {
 			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, types.ValidatorGotSlashedEventName, pubKey, err)
 			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -1472,7 +1474,7 @@ func UserValidatorWatchlistAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	proposalMissed := FormValueOrJSON(r, "validator_proposal_missed")
 	if proposalMissed == "on" {
-		err := db.AddSubscription(user.UserID, utils.Config.Chain.Phase0.ConfigName, types.ValidatorMissedProposalEventName, pubKey, 0)
+		err := db.AddSubscription(user.UserID, utils.GetNetwork(), types.ValidatorMissedProposalEventName, pubKey, 0)
 		if err != nil {
 			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, types.ValidatorGotSlashedEventName, pubKey, err)
 			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -1481,9 +1483,18 @@ func UserValidatorWatchlistAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	attestationMissed := FormValueOrJSON(r, "validator_attestation_missed")
 	if attestationMissed == "on" {
-		err := db.AddSubscription(user.UserID, utils.Config.Chain.Phase0.ConfigName, types.ValidatorMissedAttestationEventName, pubKey, 0)
+		err := db.AddSubscription(user.UserID, utils.GetNetwork(), types.ValidatorMissedAttestationEventName, pubKey, 0)
 		if err != nil {
 			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, types.ValidatorGotSlashedEventName, pubKey, err)
+			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+	syncCommittee := FormValueOrJSON(r, "validator_synccommittee_soon")
+	if syncCommittee == "on" {
+		err := db.AddSubscription(user.UserID, utils.GetNetwork(), types.SyncCommitteeSoon, pubKey, 0)
+		if err != nil {
+			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, types.SyncCommitteeSoon, pubKey, err)
 			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -1773,17 +1784,17 @@ func internUserNotificationsSubscribe(event, filter string, threshold float64, w
 
 	userPremium := getUserPremium(r)
 
-	if filterLen == 0 && !strings.HasPrefix(string(eventName), "monitoring_") { // no filter = add all my watched validators
+	filterWatchlist := db.WatchlistFilter{
+		UserId:         user.UserID,
+		Validators:     nil,
+		Tag:            types.ValidatorTagsWatchlist,
+		JoinValidators: true,
+		Network:        utils.GetNetwork(),
+	}
 
-		filter := db.WatchlistFilter{
-			UserId:         user.UserID,
-			Validators:     nil,
-			Tag:            types.ValidatorTagsWatchlist,
-			JoinValidators: true,
-			Network:        utils.GetNetwork(),
-		}
+	if filterLen == 0 && !strings.HasPrefix(string(eventName), "monitoring_") && !strings.HasPrefix(string(eventName), "rocketpool_") { // no filter = add all my watched validators
 
-		myValidators, err2 := db.GetTaggedValidators(filter)
+		myValidators, err2 := db.GetTaggedValidators(filterWatchlist)
 		if err2 != nil {
 			ErrorOrJSONResponse(w, r, "could not retrieve db results", http.StatusInternalServerError)
 			return false
@@ -1793,7 +1804,7 @@ func internUserNotificationsSubscribe(event, filter string, threshold float64, w
 
 		// not quite happy performance wise, placing a TODO here for future me
 		for i, v := range myValidators {
-			err = db.AddSubscription(user.UserID, utils.GetNetwork(), eventName, fmt.Sprintf("%v", hex.EncodeToString(v.PublicKey)), 0)
+			err = db.AddSubscription(user.UserID, utils.GetNetwork(), eventName, fmt.Sprintf("%v", hex.EncodeToString(v.ValidatorPublickey)), 0)
 			if err != nil {
 				logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
 				ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -1813,17 +1824,58 @@ func internUserNotificationsSubscribe(event, filter string, threshold float64, w
 			} else if eventName == types.MonitoringMachineMemoryUsageEventName {
 				threshold = 0.8
 			}
+			// rocketpool thresholds are free
 		}
 		network := utils.GetNetwork()
 		if eventName == types.EthClientUpdateEventName {
 			network = ""
 		}
-		err = db.AddSubscription(user.UserID, network, eventName, filter, threshold)
-		if err != nil {
-			logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
-			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
-			return false
+
+		if filterLen == 0 && (eventName == types.RocketpoolColleteralMaxReached || eventName == types.RocketpoolColleteralMinReached) {
+
+			myValidators, err2 := db.GetTaggedValidators(filterWatchlist)
+			if err2 != nil {
+				ErrorOrJSONResponse(w, r, "could not retrieve db results", http.StatusInternalServerError)
+				return false
+			}
+
+			maxValidators := userPremium.MaxValidators
+
+			var pubkeys [][]byte
+			for _, v := range myValidators {
+				pubkeys = append(pubkeys, v.ValidatorPublickey)
+			}
+
+			var rocketpoolNodes []string
+			err = db.DB.Select(&rocketpoolNodes, `
+				SELECT DISTINCT(ENCODE(node_address, 'hex')) as node_address FROM rocketpool_minipools WHERE pubkey = ANY($1)
+			`, pq.ByteaArray(pubkeys))
+			if err != nil {
+				ErrorOrJSONResponse(w, r, "could not retrieve db results", http.StatusInternalServerError)
+				return false
+			}
+
+			for i, v := range rocketpoolNodes {
+				err = db.AddSubscription(user.UserID, utils.GetNetwork(), eventName, v, threshold)
+				if err != nil {
+					logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
+					ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
+					return false
+				}
+
+				if i >= maxValidators {
+					break
+				}
+			}
+		} else {
+			err = db.AddSubscription(user.UserID, network, eventName, filter, threshold)
+			if err != nil {
+				logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
+				ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
+				return false
+			}
 		}
+
 	}
 
 	return true
@@ -1898,17 +1950,17 @@ func internUserNotificationsUnsubscribe(event, filter string, w http.ResponseWri
 		return false
 	}
 
-	if filterLen == 0 && !strings.HasPrefix(string(eventName), "monitoring_") { // no filter = add all my watched validators
+	filterWatchlist := db.WatchlistFilter{
+		UserId:         user.UserID,
+		Validators:     nil,
+		Tag:            types.ValidatorTagsWatchlist,
+		JoinValidators: true,
+		Network:        utils.GetNetwork(),
+	}
 
-		filter := db.WatchlistFilter{
-			UserId:         user.UserID,
-			Validators:     nil,
-			Tag:            types.ValidatorTagsWatchlist,
-			JoinValidators: true,
-			Network:        utils.GetNetwork(),
-		}
+	if filterLen == 0 && !strings.HasPrefix(string(eventName), "monitoring_") && !strings.HasPrefix(string(eventName), "rocketpool_") { // no filter = add all my watched validators
 
-		myValidators, err2 := db.GetTaggedValidators(filter)
+		myValidators, err2 := db.GetTaggedValidators(filterWatchlist)
 		if err2 != nil {
 			ErrorOrJSONResponse(w, r, "could not retrieve db results", http.StatusInternalServerError)
 			return false
@@ -1917,7 +1969,7 @@ func internUserNotificationsUnsubscribe(event, filter string, w http.ResponseWri
 		maxValidators := getUserPremium(r).MaxValidators
 		// not quite happy performance wise, placing a TODO here for future me
 		for i, v := range myValidators {
-			err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, fmt.Sprintf("%v", hex.EncodeToString(v.PublicKey)))
+			err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, fmt.Sprintf("%v", hex.EncodeToString(v.ValidatorPublickey)))
 			if err != nil {
 				logger.Errorf("error could not REMOVE subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
 				ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -1929,13 +1981,53 @@ func internUserNotificationsUnsubscribe(event, filter string, w http.ResponseWri
 			}
 		}
 	} else {
-		// filtered one only
-		err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, filter)
-		if err != nil {
-			logger.Errorf("error could not REMOVE subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
-			ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
-			return false
+		if filterLen == 0 && (eventName == types.RocketpoolColleteralMaxReached || eventName == types.RocketpoolColleteralMinReached) {
+
+			myValidators, err2 := db.GetTaggedValidators(filterWatchlist)
+			if err2 != nil {
+				ErrorOrJSONResponse(w, r, "could not retrieve db results", http.StatusInternalServerError)
+				return false
+			}
+
+			maxValidators := getUserPremium(r).MaxValidators
+
+			var pubkeys [][]byte
+			for _, v := range myValidators {
+				pubkeys = append(pubkeys, v.ValidatorPublickey)
+			}
+
+			var rocketpoolNodes []string
+			err = db.DB.Select(&rocketpoolNodes, `
+				SELECT DISTINCT(ENCODE(node_address, 'hex')) as node_address FROM rocketpool_minipools WHERE pubkey = ANY($1)
+			`, pq.ByteaArray(pubkeys))
+			if err != nil {
+				ErrorOrJSONResponse(w, r, "could not retrieve db results", http.StatusInternalServerError)
+				return false
+			}
+
+			for i, v := range rocketpoolNodes {
+				err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, v)
+				if err != nil {
+					logger.Errorf("error could not ADD subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
+					ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
+					return false
+				}
+
+				if i >= maxValidators {
+					break
+				}
+			}
+		} else {
+
+			// filtered one only
+			err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, filter)
+			if err != nil {
+				logger.Errorf("error could not REMOVE subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
+				ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
+				return false
+			}
 		}
+
 	}
 
 	return true
@@ -1967,7 +2059,7 @@ func UserNotificationsUnsubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if filterLen == 0 && !strings.HasPrefix(string(eventName), "monitoring_") { // no filter = add all my watched validators
+	if filterLen == 0 && !types.IsUserIndexed(eventName) { // no filter = add all my watched validators
 
 		filter := db.WatchlistFilter{
 			UserId:         user.UserID,
@@ -1987,7 +2079,7 @@ func UserNotificationsUnsubscribe(w http.ResponseWriter, r *http.Request) {
 
 		// not quite happy performance wise, placing a TODO here for future me
 		for i, v := range myValidators {
-			err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, fmt.Sprintf("%v", hex.EncodeToString(v.PublicKey)))
+			err = db.DeleteSubscription(user.UserID, utils.GetNetwork(), eventName, fmt.Sprintf("%v", hex.EncodeToString(v.ValidatorPublickey)))
 			if err != nil {
 				logger.Errorf("error could not REMOVE subscription for user %v eventName %v eventfilter %v: %v", user.UserID, eventName, filter, err)
 				ErrorOrJSONResponse(w, r, "Internal server error", http.StatusInternalServerError)
@@ -2009,6 +2101,57 @@ func UserNotificationsUnsubscribe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	OKResponse(w, r)
+}
+
+func UserNotificationsUnsubscribeByHash(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	q := r.URL.Query()
+
+	ctx, done := ctxt.WithTimeout(ctxt.Background(), time.Second*30)
+	defer done()
+
+	hashes, ok := q["hash"]
+	if !ok {
+		logger.Errorf("no query params given")
+		http.Error(w, "invalid request", 400)
+		return
+	}
+
+	tx, err := db.FrontendDB.Beginx()
+	if err != nil {
+		//  return fmt.Errorf("error beginning transaction")
+		logger.Errorf("error committing transacton")
+		http.Error(w, "error processing request", 500)
+		return
+	}
+	defer tx.Rollback()
+
+	bHashes := make([][]byte, 0, len(hashes))
+	for _, hash := range hashes {
+		hash = strings.Replace(hash, "0x", "", -1)
+		if !utils.HashLikeRegex.MatchString(hash) {
+			logger.Errorf("error validating unsubscribe digest hashes")
+			http.Error(w, "error processing request", 500)
+		}
+		b, _ := hex.DecodeString(hash)
+		bHashes = append(bHashes, b)
+	}
+
+	_, err = tx.ExecContext(ctx, `DELETE from users_subscriptions where unsubscribe_hash = ANY($1)`, pq.ByteaArray(bHashes))
+	if err != nil {
+		logger.Errorf("error deleting from users_subscriptions %v", err)
+		http.Error(w, "error processing request", 500)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		logger.Errorf("error committing transacton")
+		http.Error(w, "error processing request", 500)
+		return
+	}
+
+	fmt.Fprintf(w, "successfully unsubscribed from %v events", len(hashes))
 }
 
 type UsersNotificationsRequest struct {

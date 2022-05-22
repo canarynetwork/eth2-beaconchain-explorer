@@ -33,6 +33,7 @@ import (
 
 	"github.com/kataras/i18n"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -53,6 +54,8 @@ func getLocaliser() *i18n.I18n {
 	return localiser
 }
 
+var HashLikeRegex = regexp.MustCompile(`^[0-9a-fA-F]{0,96}$`)
+
 // GetTemplateFuncs will get the template functions
 func GetTemplateFuncs() template.FuncMap {
 	return template.FuncMap{
@@ -69,6 +72,7 @@ func GetTemplateFuncs() template.FuncMap {
 		"formatEpoch":                             FormatEpoch,
 		"formatEth1Block":                         FormatEth1Block,
 		"formatEth1Address":                       FormatEth1Address,
+		"formatEth1AddressStringLowerCase":        FormatEth1AddressStringLowerCase,
 		"formatEth1TxHash":                        FormatEth1TxHash,
 		"formatGraffiti":                          FormatGraffiti,
 		"formatHash":                              FormatHash,
@@ -76,7 +80,6 @@ func GetTemplateFuncs() template.FuncMap {
 		"formatBitvectorValidators":               formatBitvectorValidators,
 		"formatParticipation":                     FormatParticipation,
 		"formatIncome":                            FormatIncome,
-		"formatMoney":                             FormatMoney,
 		"formatIncomeSql":                         FormatIncomeSql,
 		"formatSqlInt64":                          FormatSqlInt64,
 		"formatValidator":                         FormatValidator,
@@ -99,7 +102,7 @@ func GetTemplateFuncs() template.FuncMap {
 		"formatValidatorTags":                     FormatValidatorTags,
 		"formatValidatorTag":                      FormatValidatorTag,
 		"formatRPL":                               FormatRPL,
-		"formatFloatWithPrecision":                FormatFloatWithPrecision,
+		"formatFloat":                             FormatFloat,
 		"epochOfSlot":                             EpochOfSlot,
 		"dayToTime":                               DayToTime,
 		"contains":                                strings.Contains,
@@ -407,7 +410,6 @@ func SqlRowsToJSON(rows *sql.Rows) ([]interface{}, error) {
 		scanArgs := make([]interface{}, count)
 
 		for i, v := range columnTypes {
-			//log.Printf("name: %v, type: %v", v.Name(), v.DatabaseTypeName())
 			switch v.DatabaseTypeName() {
 			case "VARCHAR", "TEXT", "UUID":
 				scanArgs[i] = new(sql.NullString)
@@ -423,6 +425,9 @@ func SqlRowsToJSON(rows *sql.Rows) ([]interface{}, error) {
 				break
 			case "TIMESTAMP":
 				scanArgs[i] = new(sql.NullTime)
+				break
+			case "_INT4", "_INT8":
+				scanArgs[i] = new(pq.Int64Array)
 				break
 			default:
 				scanArgs[i] = new(sql.NullString)
@@ -592,7 +597,7 @@ func BitAtVectorReversed(b []byte, i int) bool {
 }
 
 func GetNetwork() string {
-	if Config.Chain.Phase0.ConfigName == "" {
+	if Config.Chain.Network != "" {
 		return strings.ToLower(Config.Chain.Network)
 	}
 	return strings.ToLower(Config.Chain.Phase0.ConfigName)
