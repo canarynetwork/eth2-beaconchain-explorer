@@ -142,7 +142,7 @@ func ApiEpoch(w http.ResponseWriter, r *http.Request) {
 		epoch = int64(services.LatestEpoch())
 	}
 
-	rows, err := db.DB.Query(`SELECT *, 
+	rows, err := db.DB.Query(`SELECT *,
 		(SELECT COUNT(*) FROM blocks WHERE epoch = $1 AND status = '0') as scheduledblocks,
 		(SELECT COUNT(*) FROM blocks WHERE epoch = $1 AND status = '1') as proposedblocks,
 		(SELECT COUNT(*) FROM blocks WHERE epoch = $1 AND status = '2') as missedblocks,
@@ -651,11 +651,11 @@ func getRocketpoolStats() ([]interface{}, error) {
 		}
 	}
 	rows, err := db.DB.Query(`
-		SELECT claim_interval_time, claim_interval_time_start, 
+		SELECT claim_interval_time, claim_interval_time_start,
 		current_node_demand, current_node_fee, effective_rpl_staked,
-		node_operator_rewards, reth_exchange_rate, reth_supply, rpl_price, total_eth_balance, total_eth_staking, 
-		minipool_count, node_count, odao_member_count, 
-		(SELECT ((1 - (min(history.reth_exchange_rate) / max(history.reth_exchange_rate))) * 52.14) FROM (SELECT ts, reth_exchange_rate FROM rocketpool_network_stats LIMIT 168) history) as reth_apr  
+		node_operator_rewards, reth_exchange_rate, reth_supply, rpl_price, total_eth_balance, total_eth_staking,
+		minipool_count, node_count, odao_member_count,
+		(SELECT ((1 - (min(history.reth_exchange_rate) / max(history.reth_exchange_rate))) * 52.14) FROM (SELECT ts, reth_exchange_rate FROM rocketpool_network_stats LIMIT 168) history) as reth_apr
 		from rocketpool_network_stats ORDER BY ts desc LIMIT 1;
 			`)
 
@@ -689,9 +689,9 @@ func getRocketpoolValidators(queryIndices []uint64) ([]interface{}, error) {
 			rpln.rpl_stake         AS node_rpl_stake,
 			rpln.max_rpl_stake     AS node_max_rpl_stake,
 			rpln.min_rpl_stake     AS node_min_rpl_stake,
-			validators.validatorindex AS index 
-		FROM rocketpool_minipools rplm 
-		LEFT JOIN validators validators ON rplm.pubkey = validators.pubkey 
+			validators.validatorindex AS index
+		FROM rocketpool_minipools rplm
+		LEFT JOIN validators validators ON rplm.pubkey = validators.pubkey
 		LEFT JOIN rocketpool_nodes rpln ON rplm.node_address = rpln.address
 		WHERE validatorindex = ANY($1)`, pq.Array(queryIndices))
 
@@ -1031,9 +1031,9 @@ func ApiValidatorLeaderboard(w http.ResponseWriter, r *http.Request) {
 	j := json.NewEncoder(w)
 
 	rows, err := db.DB.Query(`
-			SELECT 
+			SELECT
 				validator_performance.*
-			FROM validator_performance 
+			FROM validator_performance
 			ORDER BY performance7d DESC LIMIT 100`)
 	if err != nil {
 		sendErrorResponse(j, r.URL.String(), "could not retrieve db results")
@@ -1529,7 +1529,7 @@ func getUserPremium(r *http.Request) PremiumUser {
 func GetUserPremiumByPackage(pkg string) PremiumUser {
 	result := PremiumUser{
 		Package:                "standard",
-		MaxValidators:          100,
+		MaxValidators:          128,
 		MaxStats:               180,
 		MaxNodes:               1,
 		WidgetSupport:          false,
